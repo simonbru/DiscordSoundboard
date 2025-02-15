@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -78,6 +80,12 @@ public class SoundPlayer {
         }
 
         bot.getGuilds().forEach(Guild::loadMembers);
+        bot.getGuilds().forEach((guild -> {
+            guild.updateCommands().addCommands(
+                    Commands.slash("play", "Play sound")
+                            .addOption(OptionType.STRING, "name", "Sound name", true)
+            ).queue();
+        }));
 
         updateFileList();
         updateUsersInDb();
@@ -98,6 +106,8 @@ public class SoundPlayer {
         commandListener.addCommand(new URLCommand(this));
         commandListener.addCommand(new UserDetailsCommand(userService, this));
         commandListener.addCommand(new VolumeCommand(this));
+
+        bot.addEventListener(new SlashCommandListener(this));
 
         bot.addEventListener(commandListener);
         bot.addEventListener(new EntranceSoundBoardListener(this, userService, soundService,
