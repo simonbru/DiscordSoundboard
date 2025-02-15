@@ -77,17 +77,25 @@ public class InfoCommand extends Command {
         long uptimeMinutes = TimeUnit.MINUTES.convert(upTime, TimeUnit.MILLISECONDS) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(upTime));
         long upTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(upTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(upTime));
 
-        event.replyByPrivateMessage("DiscordSoundboard info: ```" +
-                "CPU: " + df2.format(cpuUsage) + "%" +
-                "\nMemory: " + humanReadableByteCount(usedHeapMemoryAfterLastGC) +
-                "\nUptime: Days: " + uptimeDays + " Hours: " + uptimeHours + " Minutes: " + uptimeMinutes + " Seconds: " + upTimeSeconds +
-                "\nVersion: " + version +
-                "\nSoundFiles: " + soundPlayer.getAvailableSoundFiles().size() +
-                "\nCommand Prefix: " + botConfig.getCommandCharacter() +
-                "\nSound File Path: " + botConfig.getSoundFileDir() +
-                "\nWeb UI URL: localhost:" + soundPlayer.getApplicationContext().getWebServer().getPort() +
-                "\nSwagger URL: localhost:" + soundPlayer.getApplicationContext().getWebServer().getPort() + "/swagger-ui/index.html" +
-                "```");
+        final StringBuilder info = new StringBuilder(
+                "DiscordSoundboard info: ```" +
+                        "CPU: " + df2.format(cpuUsage) + "%" +
+                        "\nMemory: " + humanReadableByteCount(usedHeapMemoryAfterLastGC) +
+                        "\nUptime: Days: " + uptimeDays + " Hours: " + uptimeHours + " Minutes: " + uptimeMinutes + " Seconds: " + upTimeSeconds +
+                        "\nVersion: " + version +
+                        "\nSoundFiles: " + soundPlayer.getAvailableSoundFiles().size() +
+                        "\nCommand Prefix: " + botConfig.getCommandCharacter() +
+                        "\nSound File Path: " + botConfig.getSoundFileDir()
+        );
+
+        soundPlayer.getApplicationContext().ifPresent(appContext -> {
+            info.append("\nWeb UI URL: localhost:" + appContext.getWebServer().getPort())
+                .append("\nSwagger URL: localhost:" + appContext.getWebServer().getPort() + "/swagger-ui/index.html");
+        });
+
+        info.append("```");
+
+        event.replyByPrivateMessage(info.toString());
     }
 
     private static String humanReadableByteCount(long bytes) {

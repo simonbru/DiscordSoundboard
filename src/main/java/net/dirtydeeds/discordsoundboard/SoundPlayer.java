@@ -57,14 +57,14 @@ public class SoundPlayer {
     @Inject
     public SoundPlayer(MainWatch mainWatch, SoundService soundService,
                        UserService userService, ShutdownManager shutdownManager, BotConfig botConfig,
-                       ServletWebServerApplicationContext webServerApplicationContext) {
+                       Optional<ServletWebServerApplicationContext> webServerApplicationContext) {
         this.mainWatch = mainWatch;
         this.mainWatch.setSoundPlayer(this);
         this.soundService = soundService;
         this.userService = userService;
         this.shutdownManager = shutdownManager;
         this.botConfig = botConfig;
-        this.webServerApplicationContext = webServerApplicationContext;
+        this.webServerApplicationContext = webServerApplicationContext.orElse(null);
 
         init();
     }
@@ -113,9 +113,9 @@ public class SoundPlayer {
         mainWatch.watchDirectoryPath(Paths.get(botConfig.getSoundFileDir()));
     }
 
-    public ServletWebServerApplicationContext getApplicationContext() {
-        return webServerApplicationContext;
-    }
+     public Optional<ServletWebServerApplicationContext> getApplicationContext() {
+         return Optional.ofNullable(webServerApplicationContext);
+     }
 
     /**
      * Gets a Map of the loaded sound files.

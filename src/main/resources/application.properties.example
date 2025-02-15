@@ -24,6 +24,9 @@ sounds_directory=
 #Set the activity string for the bot. If left empty the message will default
 activityString=
 
+#Uncomment this line to disable web UI
+#spring.main.web-application-type=none
+
 #Configure the port the bot uses for hosting the web UI. 8080 is the default
 #server.port=8080
 
