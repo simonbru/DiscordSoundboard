@@ -83,7 +83,8 @@ public class SoundPlayer {
         bot.getGuilds().forEach((guild -> {
             guild.updateCommands().addCommands(
                     Commands.slash("play", "Play sound")
-                            .addOption(OptionType.STRING, "name", "Sound name", true)
+                            .addOption(OptionType.STRING, "name", "Sound name", true),
+                    Commands.slash("listsounds", "List sounds")
             ).queue();
         }));
 
