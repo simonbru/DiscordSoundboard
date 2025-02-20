@@ -6,16 +6,25 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.Collectors.groupingBy;
 
+
 public class SlashCommandListener extends ListenerAdapter {
 
 //    private static final Logger LOG = LoggerFactory.getLogger(SlashCommandListener.class);
+
+    private static final int MAX_SOUNDS_PER_ROW = 5;
+    private static final int MAX_SOUNDS_ROWS = 4;
+
+    private static final int MAX_SOUNDS_PER_PAGE = MAX_SOUNDS_ROWS * MAX_SOUNDS_PER_ROW;
+
 
     private final SoundPlayer bot;
 
@@ -30,32 +39,54 @@ public class SlashCommandListener extends ListenerAdapter {
             event.reply("Playing sound: " + soundName).setEphemeral(true).queue();
             bot.playForUser(soundName, event.getUser().getName(), 1, null);
         } else if (event.getName().equals("listsounds")) {
-            Set<Map.Entry<String, SoundFile>> entrySet = bot.getAvailableSoundFiles().entrySet();
-
-            ReplyCallbackAction msg = event.reply("Click on a sound to play it").setEphemeral(true);
-
-            AtomicInteger counter = new AtomicInteger();
-            entrySet.stream()
-                    .collect(groupingBy(x->counter.getAndIncrement() / 5))
-                    .values()
-                    .stream().limit(5)
-                    .forEach(soundsRow -> {
-                        List<Button> btnRow = soundsRow.stream().map(
-                                sound -> Button.primary("sound_" + sound.getKey(), sound.getKey())
-                        ).toList();
-                        msg.addActionRow(btnRow);
-                    });
-
-            msg.queue();
+            event.reply(buildListSoundsMessage(1)).setEphemeral(true).queue();
         }
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().startsWith("sound_")) {
-            String soundName = event.getComponentId().split("sound_", 2)[1];
+        String componentId = event.getComponentId();
+        if (componentId.startsWith("sound_")) {
+            String soundName = componentId.split("sound_", 2)[1];
             event.deferEdit().queue();
             bot.playForUser(soundName, event.getUser().getName(), 1, null);
+        } else if (componentId.startsWith("page_")) {
+            int page = Integer.parseInt(componentId.split("page_", 2)[1]);
+            MessageCreateData msg = buildListSoundsMessage(page);
+            event.editMessage(MessageEditData.fromCreateData(msg)).queue();
         }
+    }
+
+    private MessageCreateData buildListSoundsMessage(int page) {
+        MessageCreateBuilder msg = new MessageCreateBuilder();
+        Map<String, SoundFile> soundFiles = bot.getAvailableSoundFiles();
+
+
+        int nbPages = (int) Math.ceil((double) soundFiles.size() / MAX_SOUNDS_PER_PAGE);
+        // Clamp `page` between 1 and `nbPages`
+        // TODO: rotate instead of clamping ?
+        page = Math.min(page, nbPages);
+        page = Math.max(page, 1);
+
+        msg.setContent(String.format("Page %s/%s", page, nbPages));
+
+        AtomicInteger counter = new AtomicInteger();
+        soundFiles.keySet().stream()
+                .skip((long) (page - 1) * MAX_SOUNDS_PER_PAGE)
+                .limit(MAX_SOUNDS_PER_PAGE)
+                .collect(groupingBy(x -> counter.getAndIncrement() / MAX_SOUNDS_PER_ROW))
+                .values()
+                .forEach(soundsRow -> {
+                    List<Button> btnRow = soundsRow.stream().map(
+                            sound -> Button.primary("sound_" + sound, sound)
+                    ).toList();
+                    msg.addActionRow(btnRow);
+                });
+
+        msg.addActionRow(
+                Button.secondary("page_" + (page - 1), "Previous").withDisabled(page == 1),
+                Button.secondary("page_" + (page + 1), "Next").withDisabled(page == nbPages)
+        );
+        return msg.build();
     }
 }
