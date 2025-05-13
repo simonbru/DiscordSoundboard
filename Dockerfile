@@ -2,24 +2,26 @@ FROM gradle:7.4.2-jdk17-alpine as BaseBuilder
 
 LABEL org.opencontainers.image.source = https://github.com/Darkside138/DiscordSoundboard
 
-WORKDIR "/tmp"
-RUN git clone https://github.com/Darkside138/DiscordSoundboard.git
+COPY ./gradle/ /code/gradle/
+COPY ./src/ /code/src/
+COPY .gitignore build.gradle gradle.properties gradlew settings.gradle /code/
 
-WORKDIR DiscordSoundboard
+WORKDIR /code
 RUN gradle assembleBootDist
 
 WORKDIR build/distributions
-RUN cp DiscordSoundboard*.zip /etc/DiscordSoundboard.zip
+RUN mkdir -p /app && cp DiscordSoundboard*.zip /app/DiscordSoundboard.zip
 
-WORKDIR /etc
+WORKDIR /app
 RUN unzip DiscordSoundboard.zip
 RUN rm DiscordSoundboard.zip
 
+
 FROM bellsoft/liberica-openjdk-alpine:17.0.2-9
 
-WORKDIR /etc/DiscordSoundboard
+WORKDIR /app
 
-COPY --from=BaseBuilder /etc/DiscordSoundboard .
+COPY --from=BaseBuilder /app .
 
 EXPOSE 8080
 
