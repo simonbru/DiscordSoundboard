@@ -559,8 +559,13 @@ public class SoundPlayer {
 
     public void disconnectFromChannel(Guild guild) {
         if (guild != null) {
-            guild.getAudioManager().closeAudioConnection();
             LOG.info("Disconnecting from channel.");
+            guild.getAudioManager().closeAudioConnection();
+        } else {
+            LOG.info("Disconnecting from all channels.");
+            for (AudioManager audioManager : bot.getAudioManagers()) {
+                audioManager.closeAudioConnection();
+            }
         }
     }
 

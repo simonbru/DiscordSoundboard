@@ -54,6 +54,9 @@ public class SlashCommandListener extends ListenerAdapter {
             int page = Integer.parseInt(componentId.split("page_", 2)[1]);
             MessageCreateData msg = buildListSoundsMessage(page);
             event.editMessage(MessageEditData.fromCreateData(msg)).queue();
+        } else if (componentId.startsWith("disconnect")) {
+            bot.disconnectFromChannel(event.getGuild());
+            event.deferEdit().queue();
         }
     }
 
@@ -85,7 +88,8 @@ public class SlashCommandListener extends ListenerAdapter {
 
         msg.addActionRow(
                 Button.secondary("page_" + (page - 1), "Previous").withDisabled(page == 1),
-                Button.secondary("page_" + (page + 1), "Next").withDisabled(page == nbPages)
+                Button.secondary("page_" + (page + 1), "Next").withDisabled(page == nbPages),
+                Button.danger("disconnect", "Disconnect")
         );
         return msg.build();
     }

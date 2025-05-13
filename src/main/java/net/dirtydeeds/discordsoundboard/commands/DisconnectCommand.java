@@ -1,6 +1,7 @@
 package net.dirtydeeds.discordsoundboard.commands;
 
 import net.dirtydeeds.discordsoundboard.SoundPlayer;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 
 /**
  * @author Dave Furrer
@@ -19,6 +20,9 @@ public class DisconnectCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        soundPlayer.disconnectFromChannel(event.getMessageReceivedEvent().getGuild());
+        GenericMessageEvent msgEvent = event.getMessageReceivedEvent();
+        soundPlayer.disconnectFromChannel(
+                msgEvent.isFromGuild() ? msgEvent.getGuild() : null
+        );
     }
 }
