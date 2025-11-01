@@ -57,8 +57,15 @@ tasks.named("bootJar") {
     }
 }
 
+configurations.all {
+  resolutionStrategy { 
+    // JDA:5.6.1 asks for a version of snakeyaml that is too recent for spring boot 2.6.5
+    force 'org.yaml:snakeyaml:1.28'
+  }
+}
+
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.18'
+    implementation 'net.dv8tion:JDA:5.6.1'
     implementation 'com.github.walkyst:lavaplayer-fork:1.4.0'
     implementation 'com.github.aikaterna:lavaplayer-natives:original-SNAPSHOT'
     implementation 'pw.chew:jda-chewtils:1.24.1'
