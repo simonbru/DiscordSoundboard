@@ -58,10 +58,12 @@ tasks.named("bootJar") {
 }
 
 configurations.all {
-  resolutionStrategy { 
-    // JDA:5.6.1 asks for a version of snakeyaml that is too recent for spring boot 2.6.5
-    force 'org.yaml:snakeyaml:1.28'
-  }
+    resolutionStrategy {
+        // JDA:5.6.1 asks for a version of snakeyaml that is too recent for spring boot 2.6.5
+        force 'org.yaml:snakeyaml:1.28'
+        // lavaplayer-fork needs an older version of slf4j
+        force 'org.slf4j:slf4j-api:1.7.36'
+    }
 }
 
 dependencies {
