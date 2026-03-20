@@ -21,14 +21,10 @@ plugins {
 repositories {
     mavenCentral()
     maven {
-        name 'm2-dv8tion'
-        url 'https://m2.dv8tion.net/releases'
+        url 'https://jitpack.io'  // For com.github.walkyst.JAADec-fork:jaadec-ext-aac & ibxm-fork:com.github.walkyst:ibxm-fork
     }
     maven {
-        url 'https://jitpack.io'
-    }
-    maven {
-        url "https://m2.chew.pro/releases"
+        url "https://maven.lavalink.dev/releases"  // For moe.kyokobot.libdave:*
     }
 }
 
@@ -59,18 +55,19 @@ tasks.named("bootJar") {
 
 configurations.all {
     resolutionStrategy {
-        // JDA:5.6.1 asks for a version of snakeyaml that is too recent for spring boot 2.6.5
+        // JDA:6.x asks for a version of snakeyaml that is too recent for spring boot 2.6.5
         force 'org.yaml:snakeyaml:1.28'
-        // lavaplayer-fork needs an older version of slf4j
+        // JDA 6.x pulls in SLF4J 2.x, but Spring Boot 2.6.x requires SLF4J 1.7.x + logback 1.2.x
         force 'org.slf4j:slf4j-api:1.7.36'
     }
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.6.1'
-    implementation 'com.github.walkyst:lavaplayer-fork:1.4.0'
-    implementation 'com.github.aikaterna:lavaplayer-natives:original-SNAPSHOT'
-    implementation 'pw.chew:jda-chewtils:1.24.1'
+    implementation 'net.dv8tion:JDA:6.3.2'
+    implementation 'moe.kyokobot.libdave:adapter-jda:0.1.2'
+    implementation 'moe.kyokobot.libdave:impl-jni:0.1.2'
+    implementation 'moe.kyokobot.libdave:natives-linux-x86-64:0.1.2'
+    implementation 'dev.arbjerg:lavaplayer:2.2.6'
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
     implementation 'ch.qos.logback:logback-classic:1.2.11'

@@ -5,7 +5,8 @@ import net.dirtydeeds.discordsoundboard.beans.SoundFile;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -83,14 +84,14 @@ public class SlashCommandListener extends ListenerAdapter {
                     List<Button> btnRow = soundsRow.stream().map(
                             sound -> Button.primary("sound_" + sound, sound)
                     ).toList();
-                    msg.addActionRow(btnRow);
+                    msg.addComponents(ActionRow.of(btnRow));
                 });
 
-        msg.addActionRow(
+        msg.addComponents(ActionRow.of(
                 Button.secondary("page_" + (page - 1), "Previous").withDisabled(page == 1),
                 Button.secondary("page_" + (page + 1), "Next").withDisabled(page == nbPages),
                 Button.danger("disconnect", "Disconnect")
-        );
+        ));
         return msg.build();
     }
 }

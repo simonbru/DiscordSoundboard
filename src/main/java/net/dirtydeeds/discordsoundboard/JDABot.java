@@ -3,8 +3,11 @@ package net.dirtydeeds.discordsoundboard;
 import lombok.Getter;
 import net.dirtydeeds.discordsoundboard.listeners.OnReadyListener;
 import net.dirtydeeds.discordsoundboard.handlers.PlayerManager;
+import moe.kyokobot.libdave.jda.LDJDADaveSessionFactory;
+import moe.kyokobot.libdave.NativeDaveFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -41,6 +44,8 @@ public class JDABot {
                     .disableCache(CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .setAutoReconnect(true)
+                    .setAudioModuleConfig(new AudioModuleConfig()
+                            .withDaveSessionFactory(new LDJDADaveSessionFactory(new NativeDaveFactory())))
                     .addEventListeners(new OnReadyListener(this))
                     .build();
             jda.awaitReady();
