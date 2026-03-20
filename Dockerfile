@@ -17,7 +17,7 @@ RUN unzip DiscordSoundboard.zip
 RUN rm DiscordSoundboard.zip
 
 
-FROM bellsoft/liberica-openjdk-alpine:17.0.2-9
+FROM bellsoft/liberica-openjdk-alpine:17.0.18
 
 WORKDIR /app
 
