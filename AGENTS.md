@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A Discord soundboard bot: a Spring Boot 4 app (Java 17 toolchain, Gradle 9 wrapper) that logs into Discord through JDA 6, plays audio files with lavaplayer, and serves a single-page web UI and REST API on port 8080. Users trigger sounds from chat commands (`?<soundname>`), slash commands (`/play`, `/listsounds`), the web UI, or entrance/leave events.
+A Discord soundboard bot: a Spring Boot 4 app (Java 25 toolchain, Gradle 9 wrapper) that logs into Discord through JDA 6, plays audio files with lavaplayer, and serves a single-page web UI and REST API on port 8080. Users trigger sounds from chat commands (`?<soundname>`), slash commands (`/play`, `/listsounds`), the web UI, or entrance/leave events.
 
 ## Commands
 
@@ -47,4 +47,3 @@ All code lives under `src/main/java/net/dirtydeeds/discordsoundboard/`.
 - H2 2.x cannot open `discordDB` files written by H2 1.4.200 (releases up to Spring Boot 2.7). `./gradlew migrateH2Database` converts them by dumping with 1.4.200 and reimporting with 2.x. It takes `-PdbPath`, `-PdbUser` and `-PdbPassword` and keeps a `.h2-1.4.bak` backup.
 - Extra repos: jitpack (lavaplayer transitive deps) and `maven.lavalink.dev` (libdave).
 - Lombok is used throughout (`@Getter`, etc.).
-- The GitHub CI workflow (`.github/workflows/gradle.yml`) still sets up JDK 1.8, even though the toolchain requires 17.

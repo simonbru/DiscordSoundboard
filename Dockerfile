@@ -1,4 +1,4 @@
-FROM gradle:9.9-jdk17-alpine AS BaseBuilder
+FROM gradle:9.9-jdk25-alpine AS BaseBuilder
 
 LABEL org.opencontainers.image.source = https://github.com/Darkside138/DiscordSoundboard
 
@@ -17,7 +17,7 @@ RUN unzip DiscordSoundboard.zip
 RUN rm DiscordSoundboard.zip
 
 
-FROM bellsoft/liberica-openjdk-alpine:17.0.18
+FROM bellsoft/liberica-openjdk-alpine:25.0.5.1
 
 WORKDIR /app
 

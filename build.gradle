@@ -24,8 +24,14 @@ processResources {
     }
 }
 
+configurations {
+    mockitoAgent
+}
+
 test {
     useJUnitPlatform()
+    // Load Mockito as a Java agent instead of letting it self-attach at runtime (no longer allowed by default on recent JDKs)
+    jvmArgumentProviders.add({ ["-javaagent:${configurations.mockitoAgent.singleFile}"] } as CommandLineArgumentProvider)
 }
 
 application {
@@ -34,13 +40,14 @@ application {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 tasks.named("bootJar") {
     manifest {
         attributes 'Implementation-Title': rootProject.name,
+                'Enable-Native-Access': 'ALL-UNNAMED',  // lavaplayer & libdave load native libraries
                 'Implementation-Version': projectVersion
     }
 }
@@ -72,6 +79,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
+    mockitoAgent platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    mockitoAgent('org.mockito:mockito-core') { transitive = false }
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
