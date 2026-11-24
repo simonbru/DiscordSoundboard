@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A Discord soundboard bot: a Spring Boot 2.6 app (Java 17 toolchain) that logs into Discord through JDA 6, plays audio files with lavaplayer, and serves a single-page web UI and REST API on port 8080. Users trigger sounds from chat commands (`?<soundname>`), slash commands (`/play`, `/listsounds`), the web UI, or entrance/leave events.
+A Discord soundboard bot: a Spring Boot 2.7 app (Java 17 toolchain, Gradle 8 wrapper) that logs into Discord through JDA 6, plays audio files with lavaplayer, and serves a single-page web UI and REST API on port 8080. Users trigger sounds from chat commands (`?<soundname>`), slash commands (`/play`, `/listsounds`), the web UI, or entrance/leave events.
 
 ## Commands
 
@@ -42,7 +42,8 @@ All code lives under `src/main/java/net/dirtydeeds/discordsoundboard/`.
 
 ## Dependency gotchas (see `build.gradle`)
 
-- JDA 6 pulls in SLF4J 2.x and a newer snakeyaml. Both are forced down (`slf4j-api:1.7.36`, `snakeyaml:1.28`) to stay compatible with Spring Boot 2.6 and logback 1.2. Upgrading JDA or Spring means revisiting these overrides.
+- JDA 6 pulls in SLF4J 2.x and a newer snakeyaml. Both are forced down (`slf4j-api:1.7.36`, `snakeyaml:1.33`) to stay compatible with Spring Boot 2.7 and logback 1.2. Upgrading JDA or Spring means revisiting these overrides.
+- H2 is deliberately kept at 1.4.200: H2 2.x cannot open existing `discordDB` files. The Spring dependency-management plugin is not applied, so Gradle picks the highest requested version of each transitive dependency.
 - Extra repos: jitpack (lavaplayer transitive deps) and `maven.lavalink.dev` (libdave).
 - Lombok is used throughout (`@Getter`, etc.).
 - The GitHub CI workflow (`.github/workflows/gradle.yml`) still sets up JDK 1.8, even though the toolchain requires 17.

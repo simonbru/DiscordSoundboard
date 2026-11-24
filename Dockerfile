@@ -1,4 +1,4 @@
-FROM gradle:7.4.2-jdk17-alpine as BaseBuilder
+FROM gradle:8.14-jdk17-alpine AS BaseBuilder
 
 LABEL org.opencontainers.image.source = https://github.com/Darkside138/DiscordSoundboard
 

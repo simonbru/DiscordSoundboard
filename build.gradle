@@ -1,36 +1,26 @@
-buildscript {
-    ext {
-        springBootVersion = '2.6.5'
-    }
-
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-        classpath("org.springframework.boot:spring-boot-starter-jersey:${springBootVersion}")
-    }
-}
-
 plugins {
     id 'java'
     id 'idea'
     id 'distribution'
-    id 'org.springframework.boot' version '2.6.5'
+    id 'org.springframework.boot' version '2.7.18'
     id 'application'
 }
 
 repositories {
     mavenCentral()
     maven {
-        url 'https://jitpack.io'  // For com.github.walkyst.JAADec-fork:jaadec-ext-aac & ibxm-fork:com.github.walkyst:ibxm-fork
+        url = 'https://jitpack.io'  // For com.github.walkyst.JAADec-fork:jaadec-ext-aac & ibxm-fork:com.github.walkyst:ibxm-fork
     }
     maven {
-        url "https://maven.lavalink.dev/releases"  // For moe.kyokobot.libdave:*
+        url = "https://maven.lavalink.dev/releases"  // For moe.kyokobot.libdave:*
     }
 }
 
 processResources {
+    def expandProps = [projectVersion: projectVersion]
+    inputs.properties(expandProps)
     filesMatching('application.yml') {
-        expand(project.properties)
+        expand(expandProps)
     }
 }
 
@@ -38,7 +28,9 @@ test {
     useJUnitPlatform()
 }
 
-mainClassName = 'net.dirtydeeds.discordsoundboard.MainController'
+application {
+    mainClass = 'net.dirtydeeds.discordsoundboard.MainController'
+}
 
 java {
     toolchain {
@@ -55,43 +47,44 @@ tasks.named("bootJar") {
 
 configurations.all {
     resolutionStrategy {
-        // JDA:6.x asks for a version of snakeyaml that is too recent for spring boot 2.6.5
-        force 'org.yaml:snakeyaml:1.28'
-        // JDA 6.x pulls in SLF4J 2.x, but Spring Boot 2.6.x requires SLF4J 1.7.x + logback 1.2.x
+        // JDA:6.x asks for a version of snakeyaml that is too recent for spring boot 2.7.x
+        force 'org.yaml:snakeyaml:1.33'
+        // JDA 6.x pulls in SLF4J 2.x, but Spring Boot 2.7.x requires SLF4J 1.7.x + logback 1.2.x
         force 'org.slf4j:slf4j-api:1.7.36'
     }
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:6.3.2'
-    implementation 'moe.kyokobot.libdave:adapter-jda:0.1.2'
-    implementation 'moe.kyokobot.libdave:impl-jni:0.1.2'
-    implementation 'moe.kyokobot.libdave:natives-linux-x86-64:0.1.2'
-    implementation 'dev.arbjerg:lavaplayer:2.2.6'
+    implementation 'net.dv8tion:JDA:6.7.0'
+    implementation 'moe.kyokobot.libdave:adapter-jda:0.2.0'
+    implementation 'moe.kyokobot.libdave:impl-jni:0.2.0'
+    implementation 'moe.kyokobot.libdave:natives-linux-x86-64:0.2.0'
+    implementation 'dev.arbjerg:lavaplayer:2.2.7'
 
-    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    implementation 'ch.qos.logback:logback-classic:1.2.11'
-    compileOnly 'org.projectlombok:lombok:1.18.22'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.22.0'
+    implementation 'ch.qos.logback:logback-classic:1.2.13'
+    compileOnly 'org.projectlombok:lombok:1.18.48'
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
 
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.6.5'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jersey', version: '2.6.5'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.7.18'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jersey', version: '2.7.18'
 
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.6.5'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.6.5'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-rest', version: '2.6.6'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.7.18'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.7.18'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-rest', version: '2.7.18'
 
     implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
 
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.6'
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.8.0'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    testImplementation "org.mockito:mockito-core:4.4.0"
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.4.0'
-    testCompileOnly 'org.projectlombok:lombok:1.18.22'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.14.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.14.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.14.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
+    testImplementation "org.mockito:mockito-core:5.24.0"
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.24.0'
+    testCompileOnly 'org.projectlombok:lombok:1.18.48'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.48'
 }
 
 processResources {
@@ -107,7 +100,7 @@ bootDistZip {
     archiveFileName = 'DiscordSoundboard.zip'
     into ("DiscordSoundboard/bin") {
         from ('src/main/resources/application.properties.example')
-        from ("$buildDir/resources/main/application.yml")
+        from ("${layout.buildDirectory.get().asFile}/resources/main/application.yml")
     }
     into("DiscordSoundboard/bin/static") {
         from('src/main/webapp')
@@ -121,8 +114,8 @@ bootDistZip {
 
 task renameDist {
     doLast {
-    new File("$buildDir/distributions/DiscordSoundboard.zip")
-            .renameTo("$buildDir/distributions/DiscordSoundboard-"+projectVersion+".zip")
+    new File("${layout.buildDirectory.get().asFile}/distributions/DiscordSoundboard.zip")
+            .renameTo("${layout.buildDirectory.get().asFile}/distributions/DiscordSoundboard-"+projectVersion+".zip")
     }
 }
 
