@@ -21,13 +21,11 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.annotation.PreDestroy;
 import java.io.*;
 import java.nio.file.*;
 import java.time.ZonedDateTime;
@@ -42,7 +40,6 @@ import java.util.stream.StreamSupport;
  * and the configuration properties.
  */
 @Component
-@Singleton
 public class SoundPlayer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SoundPlayer.class);
@@ -56,7 +53,6 @@ public class SoundPlayer {
     private JDA bot;
     private JDABot jdaBot;
 
-    @Inject
     public SoundPlayer(MainWatch mainWatch, SoundService soundService,
                        UserService userService, ShutdownManager shutdownManager, BotConfig botConfig,
                        Optional<ServletWebServerApplicationContext> webServerApplicationContext) {

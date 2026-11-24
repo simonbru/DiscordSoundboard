@@ -12,6 +12,9 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
+    properties:
+      # Keep Hibernate 5 behaviour: store ZonedDateTime as a plain TIMESTAMP (existing column type)
+      hibernate.timezone.default_storage: NORMALIZE
   datasource:
-    url: jdbc:h2:file:./discordDB/discordDB;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
+    url: jdbc:h2:file:./discordDB/discordDB;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;NON_KEYWORDS=USER
     driver-class-name: org.h2.Driver

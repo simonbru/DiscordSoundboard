@@ -8,7 +8,7 @@ import net.dirtydeeds.discordsoundboard.service.SoundService;
 import net.dirtydeeds.discordsoundboard.service.UserService;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.h2.util.StringUtils;
+import org.springframework.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +48,11 @@ public class EntranceSoundBoardListener extends ListenerAdapter {
 
                 User user = userService.findOneByIdOrUsernameIgnoreCase(userId, userJoined);
                 if (user != null) {
-                    if (!StringUtils.isNullOrEmpty(user.getEntranceSound())) {
+                    if (StringUtils.hasLength(user.getEntranceSound())) {
                         String entranceSound = user.getEntranceSound();
                         LOG.info(String.format("Playing entrance sound %s", entranceSound));
                         bot.playFileInChannel(entranceSound, event.getChannelJoined());
-                    } else if (!StringUtils.isNullOrEmpty(botConfig.getEntranceForAll())) {
+                    } else if (StringUtils.hasLength(botConfig.getEntranceForAll())) {
                         LOG.info(String.format("Playing entrance for all sound %s", botConfig.getEntranceForAll()));
                         bot.playFileInChannel(botConfig.getEntranceForAll(), event.getChannelJoined());
                     } else {

@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'distribution'
-    id 'org.springframework.boot' version '2.7.18'
+    id 'org.springframework.boot' version '4.2.0'
     id 'application'
 }
 
@@ -45,46 +45,35 @@ tasks.named("bootJar") {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        // JDA:6.x asks for a version of snakeyaml that is too recent for spring boot 2.7.x
-        force 'org.yaml:snakeyaml:1.33'
-        // JDA 6.x pulls in SLF4J 2.x, but Spring Boot 2.7.x requires SLF4J 1.7.x + logback 1.2.x
-        force 'org.slf4j:slf4j-api:1.7.36'
-    }
-}
-
 dependencies {
+    // Spring Boot BOM: aligns Spring, Hibernate, H2, logback, Lombok, JUnit and Mockito versions
+    implementation platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    annotationProcessor platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    testAnnotationProcessor platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+
     implementation 'net.dv8tion:JDA:6.7.0'
     implementation 'moe.kyokobot.libdave:adapter-jda:0.2.0'
     implementation 'moe.kyokobot.libdave:impl-jni:0.2.0'
     implementation 'moe.kyokobot.libdave:natives-linux-x86-64:0.2.0'
     implementation 'dev.arbjerg:lavaplayer:2.2.7'
 
-    implementation group: 'commons-io', name: 'commons-io', version: '2.22.0'
-    implementation 'ch.qos.logback:logback-classic:1.2.13'
-    compileOnly 'org.projectlombok:lombok:1.18.48'
-    annotationProcessor 'org.projectlombok:lombok:1.18.48'
+    implementation 'commons-io:commons-io:2.22.0'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.7.18'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jersey', version: '2.7.18'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    runtimeOnly 'com.h2database:h2'
 
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.7.18'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.7.18'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-rest', version: '2.7.18'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.1'
 
-    implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
-
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.8.0'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.14.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.14.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.14.4'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
-    testImplementation "org.mockito:mockito-core:5.24.0"
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.24.0'
-    testCompileOnly 'org.projectlombok:lombok:1.18.48'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.48'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 processResources {
@@ -112,11 +101,64 @@ bootDistZip {
         fileName.replace('application.properties.example', 'application.properties') }
 }
 
-task renameDist {
+def renameDist = tasks.register('renameDist') {
     doLast {
-    new File("${layout.buildDirectory.get().asFile}/distributions/DiscordSoundboard.zip")
+        new File("${layout.buildDirectory.get().asFile}/distributions/DiscordSoundboard.zip")
             .renameTo("${layout.buildDirectory.get().asFile}/distributions/DiscordSoundboard-"+projectVersion+".zip")
     }
 }
 
-bootDistZip.finalizedBy renameDist
+tasks.named('bootDistZip') { finalizedBy renameDist }
+
+// One-off migration of a database written by H2 1.4.200 (used up to v3.3.x / Spring Boot 2.7) to the H2 2.x format.
+// Stop the bot first, then: ./gradlew migrateH2Database [-PdbPath=discordDB/discordDB] [-PdbUser=admin] [-PdbPassword=password]
+// The old file is kept as <db>.mv.db.h2-1.4.bak and the intermediate SQL dump as <db>-h2-1.4.sql.
+configurations {
+    h2Legacy
+}
+
+dependencies {
+    h2Legacy 'com.h2database:h2:1.4.200'
+}
+
+def h2DbPath = providers.gradleProperty('dbPath').orElse('discordDB/discordDB').map { file(it).absolutePath }
+def h2DbUser = providers.gradleProperty('dbUser').orElse('admin')
+def h2DbPassword = providers.gradleProperty('dbPassword').orElse('password')
+def h2DumpPath = h2DbPath.map { it + '-h2-1.4.sql' }
+
+def exportLegacyH2Database = tasks.register('exportLegacyH2Database', JavaExec) {
+    group = 'database'
+    description = 'Dumps an H2 1.4.200 database to SQL (first step of migrateH2Database).'
+    classpath = configurations.h2Legacy
+    mainClass = 'org.h2.tools.Script'
+    argumentProviders.add({
+        ['-url', "jdbc:h2:file:${h2DbPath.get()};IFEXISTS=TRUE", '-user', h2DbUser.get(), '-password', h2DbPassword.get(),
+         '-script', h2DumpPath.get()]
+    } as CommandLineArgumentProvider)
+    doFirst {
+        if (!new File(h2DbPath.get() + '.mv.db').exists()) {
+            throw new GradleException("No database found at ${h2DbPath.get()}.mv.db")
+        }
+        if (new File(h2DbPath.get() + '.mv.db.h2-1.4.bak').exists()) {
+            throw new GradleException("${h2DbPath.get()}.mv.db.h2-1.4.bak already exists: the database looks already migrated")
+        }
+    }
+}
+
+tasks.register('migrateH2Database', JavaExec) {
+    group = 'database'
+    description = 'Migrates an H2 1.4.200 database file to the H2 2.x format used by the application.'
+    dependsOn exportLegacyH2Database
+    classpath = configurations.runtimeClasspath
+    mainClass = 'org.h2.tools.RunScript'
+    argumentProviders.add({
+        ['-url', "jdbc:h2:file:${h2DbPath.get()}", '-user', h2DbUser.get(), '-password', h2DbPassword.get(),
+         '-script', h2DumpPath.get(), '-options', 'FROM_1X']
+    } as CommandLineArgumentProvider)
+    doFirst {
+        def dbFile = new File(h2DbPath.get() + '.mv.db')
+        if (!dbFile.renameTo(new File(dbFile.path + '.h2-1.4.bak'))) {
+            throw new GradleException("Could not back up $dbFile")
+        }
+    }
+}

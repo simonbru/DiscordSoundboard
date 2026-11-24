@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,7 +27,6 @@ public class SoundController {
     private final SoundPlayer soundPlayer;
     private final SoundService soundService;
 
-    @Inject
     public SoundController (SoundPlayer soundPlayer, SoundService soundService) {
         this.soundPlayer = soundPlayer;
         this.soundService = soundService;

@@ -9,20 +9,20 @@ import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class BotUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(BotUtils.class);
 
-    public static boolean userIsAdmin(@NotNull MessageReceivedEvent messageReceivedEvent) {
+    public static boolean userIsAdmin(@NonNull MessageReceivedEvent messageReceivedEvent) {
         if (messageReceivedEvent.getMember() == null) {
             return false;
         }
         return PermissionUtil.checkPermission(messageReceivedEvent.getMember(), Permission.MANAGE_SERVER);
     }
 
-    public static void replyByPrivateMessage(@NotNull MessageReceivedEvent messageReceivedEvent, String message) {
+    public static void replyByPrivateMessage(@NonNull MessageReceivedEvent messageReceivedEvent, String message) {
         if (message.length() < Message.MAX_CONTENT_LENGTH) {
             messageReceivedEvent.getAuthor().openPrivateChannel().complete().sendMessage(message).queue();
         } else {

@@ -6,7 +6,6 @@ import net.dirtydeeds.discordsoundboard.controllers.response.ChannelResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.inject.Inject;
 import java.util.List;
 
 @RestController
@@ -16,7 +15,6 @@ public class BotCommandController {
 
     private final SoundPlayer soundPlayer;
 
-    @Inject
     public BotCommandController(SoundPlayer soundPlayer) {
         this.soundPlayer = soundPlayer;
     }

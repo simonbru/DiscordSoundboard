@@ -8,7 +8,7 @@ import net.dirtydeeds.discordsoundboard.service.SoundService;
 import net.dirtydeeds.discordsoundboard.service.UserService;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.h2.util.StringUtils;
+import org.springframework.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class MovedChannelListener extends ListenerAdapter {
 
                 User user = userService.findOneByIdOrUsernameIgnoreCase(discordUserId, discordUser);
                 if (user != null) {
-                    if (!StringUtils.isNullOrEmpty(user.getEntranceSound())) {
+                    if (StringUtils.hasLength(user.getEntranceSound())) {
                         entranceFile = user.getEntranceSound();
 
                         LOG.info("Playing move sound {}", entranceFile);
@@ -58,7 +58,7 @@ public class MovedChannelListener extends ListenerAdapter {
                             entranceFile = entranceSoundFile.getSoundFileId();
                         }
                     }
-                    if (!StringUtils.isNullOrEmpty(user.getLeaveSound())) {
+                    if (StringUtils.hasLength(user.getLeaveSound())) {
                         disconnectFile = user.getLeaveSound();
 
                         LOG.info("Playing leave sound {}", disconnectFile);
@@ -70,18 +70,18 @@ public class MovedChannelListener extends ListenerAdapter {
                         }
                     }
                 }
-                if (!StringUtils.isNullOrEmpty(botConfig.getEntranceForAll())) {
+                if (StringUtils.hasLength(botConfig.getEntranceForAll())) {
                     entranceFile = botConfig.getEntranceForAll();
                     LOG.info("Playing entrance for all sound {}", entranceFile);
                 }
 
-                if (!StringUtils.isNullOrEmpty(entranceFile)) {
+                if (StringUtils.hasLength(entranceFile)) {
                     try {
                         bot.playFileInChannel(entranceFile, event.getChannelJoined());
                     } catch (Exception e) {
                         LOG.error("Could not play file for entrance of {}", user);
                     }
-                } else if (!StringUtils.isNullOrEmpty(disconnectFile)) {
+                } else if (StringUtils.hasLength(disconnectFile)) {
                     try {
                         bot.playFileInChannel(disconnectFile, event.getChannelLeft());
                     } catch (Exception e) {

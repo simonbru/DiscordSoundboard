@@ -8,7 +8,7 @@ import net.dirtydeeds.discordsoundboard.service.SoundService;
 import net.dirtydeeds.discordsoundboard.service.UserService;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.h2.util.StringUtils;
+import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class LeaveSoundBoardListener extends ListenerAdapter {
             String userIdDisconnected = event.getMember().getId();
             User user = userService.findOneByIdOrUsernameIgnoreCase(userIdDisconnected, userNameDisconnected);
             if (user != null) {
-                if (!StringUtils.isNullOrEmpty(user.getLeaveSound())) {
+                if (StringUtils.hasLength(user.getLeaveSound())) {
                     bot.playFileInChannel(user.getLeaveSound(), event.getChannelLeft());
                 } else {
                     //If DB doesn't have a leave sound check for a file named with the userName + leave suffix

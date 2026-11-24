@@ -3,8 +3,8 @@ package net.dirtydeeds.discordsoundboard.beans;
 import lombok.*;
 import net.dv8tion.jda.api.JDA;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 /**
  * Class that represents a user of discord.

@@ -1,10 +1,10 @@
 package net.dirtydeeds.discordsoundboard.beans;
 
 import lombok.*;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.time.ZonedDateTime;
 
 /**
